@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#08090B"/>
+  <!-- the unit, seen end-on: a coil's bore and wrap -->
+  <circle cx="16" cy="16" r="10" fill="none" stroke="#BFD4E8" stroke-width="2"/>
+  <circle cx="16" cy="16" r="4.2" fill="none" stroke="#BFD4E8" stroke-width="2"/>
+  <circle cx="16" cy="16" r="1.7" fill="#E82127"/>
+</svg>

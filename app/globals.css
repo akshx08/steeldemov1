@@ -3,25 +3,238 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* one signal colour. Everything else on this site is white, grey or black. */
+  --signal: 232 33 39;
+  --signal-hi: 255 96 90;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* `clip`, never `hidden` — `hidden` makes html a scroll container and every
+     sticky stage sticks to it instead of the viewport, rendering blank void. */
+  overflow-x: clip;
+  scroll-behavior: auto; /* Lenis owns scrolling */
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-void text-white font-body antialiased;
+  font-size: 15.5px;
+  line-height: 1.66;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+::selection {
+  background: rgb(var(--signal));
+  color: #f4f7fa;
+}
+
+:focus-visible {
+  outline: 1.5px solid rgb(var(--signal-hi));
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Type                                                                */
+/* ------------------------------------------------------------------ */
+
+/* Light weights at large sizes — the opposite of a heavy industrial
+   display. Reads as instrumentation, not as signage. */
+.display {
+  @apply font-disp;
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.label {
+  @apply font-label uppercase;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  line-height: 1.4;
+}
+
+.spec {
+  @apply font-spec;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass — floating instrument panels over the film                    */
+/* ------------------------------------------------------------------ */
+
+.glass {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    rgba(226, 233, 242, 0.06),
+    rgba(226, 233, 242, 0.017)
+  );
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(226, 233, 242, 0.1);
+  box-shadow:
+    inset 0 1px 0 0 rgba(226, 233, 242, 0.11),
+    0 28px 70px -34px rgba(0, 0, 0, 0.95);
+}
+
+/* corner registration ticks — drawn with gradients, no extra elements */
+.ticks::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgb(var(--signal) / 0.85) 0 10px, transparent 10px) 0 0 / 100% 1px no-repeat,
+    linear-gradient(to bottom, rgb(var(--signal) / 0.85) 0 10px, transparent 10px) 0 0 / 1px 100% no-repeat,
+    linear-gradient(to left, rgb(var(--signal) / 0.85) 0 10px, transparent 10px) 100% 100% / 100% 1px no-repeat,
+    linear-gradient(to top, rgb(var(--signal) / 0.85) 0 10px, transparent 10px) 100% 100% / 1px 100% no-repeat;
+}
+
+/* the floating grid the whole OS sits on */
+.grid-floor {
+  background-image:
+    linear-gradient(rgba(226, 233, 242, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 233, 242, 0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+/* Copy sits directly over a 62,000-point cloud. Bare text loses against it —
+   a shadow buys legibility without putting a visible box behind the words.
+   Text already inside a glass panel has its own backdrop and is excluded. */
+[data-stage] :is(h1, h2, p):not(.glass *) {
+  text-shadow:
+    0 1px 18px rgba(0, 0, 0, 0.92),
+    0 0 44px rgba(0, 0, 0, 0.7);
+}
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 70;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 65;
+  background: radial-gradient(
+    ellipse 120% 90% at 50% 48%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.66) 100%
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Controls                                                            */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  @apply font-label uppercase inline-flex items-center gap-3 relative;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  padding: 16px 28px;
+  border: 1px solid theme(colors.line);
+  color: theme(colors.white);
+  transition:
+    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn:hover {
+  border-color: rgb(var(--signal));
+  color: rgb(var(--signal-hi));
+}
+.btn--solid {
+  background: theme(colors.white);
+  border-color: theme(colors.white);
+  color: #08090b;
+}
+.btn--solid:hover {
+  background: rgb(var(--signal));
+  border-color: rgb(var(--signal));
+  color: #f4f7fa;
+}
+
+/* ------------------------------------------------------------------ */
+/* Opening reveal — CSS, not JS                                        */
+/*                                                                     */
+/* A tween that has not ticked leaves the headline parked below its     */
+/* mask, so a throttled or backgrounded tab renders an empty hero. A    */
+/* CSS animation with `forwards` always resolves to its end state.      */
+/* ------------------------------------------------------------------ */
+
+@keyframes riseIn {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(900%); }
+}
+
+.rise {
+  display: block;
+  transform: translateY(110%);
+  animation: riseIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.fadeup {
+  opacity: 0;
+  animation: fadeUpIn 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* The `:root[data-reduced="1"]` half mirrors the media query so that the
+   `?reduced=1` test hook exercises the CSS path too, not just the JS one.
+   Without it the hook silently half-works: the loops stop but the headline
+   stays parked below its mask, which is exactly the failure it exists to
+   catch. The attribute is set before first paint in app/layout.tsx. */
+@media (prefers-reduced-motion: reduce) {
+  .grain { display: none; }
+  .rise,
+  .fadeup {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:root[data-reduced="1"] .grain { display: none; }
+:root[data-reduced="1"] .rise,
+:root[data-reduced="1"] .fadeup {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+:root[data-reduced="1"] *,
+:root[data-reduced="1"] *::before,
+:root[data-reduced="1"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (max-width: 767px) {
+  .glass {
+    backdrop-filter: blur(13px) saturate(112%);
+    -webkit-backdrop-filter: blur(13px) saturate(112%);
   }
 }

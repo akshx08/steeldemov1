@@ -11,8 +11,8 @@ import {
   applyAlpha,
   coilGeo,
   collectFadeables,
-  chromeMat,
   dispose,
+  steelCoil,
   studioEnv,
 } from "./world/kit";
 import { COIL_HOME, COIL_RI, COIL_RO, COIL_W, edgeShader, ground, truck } from "./world/truck";
@@ -22,32 +22,31 @@ gsap.registerPlugin(ScrollTrigger);
 
 /**
  * The film. One continuous take: a truck assembles from wireframe, its coil
- * lifts off the bed, resolves into a point cloud, bursts, settles into a data
- * field, and folds into the route network.
+ * lifts off the bed, resolves into a point cloud, shatters, and the shards
+ * reassemble into the map of India it ships across.
  *
  * `?act=0.62` pins progress and skips ScrollTrigger — the tuning and
  * screenshot surface, because a throttled rAF cannot advance ScrollTrigger.
  */
 
-/** camera keyframes, interpolated with smoothstep between neighbours */
+/** camera keyframes, interpolated with smoothstep between neighbours.
+ *  Act windows (6 acts): manifest .152 · lift .318 · scan .495 · shatter .646
+ *  · india .848 · dispatch 1.0 */
 const KEYS: { p: number; pos: [number, number, number]; look: [number, number, number]; fov: number }[] = [
   /* The look targets sit ABOVE the subject on purpose: it drops the rig into
      the lower half of frame and leaves the top two thirds for the type. */
-  /* ~28 units from the rig frames its 19 m at fov 34. Further out and the
-     wireframe's 1px additive lines stop reading at all. */
   { p: 0.0, pos: [18, 8.0, 19], look: [0, 4.8, -4.0], fov: 34 },
-  { p: 0.13, pos: [13, 6.4, 13.5], look: [0, 4.4, -4.2], fov: 34 },
-  { p: 0.273, pos: [8.4, 6.4, 8.6], look: [0, 5.8, -4.4], fov: 34 },
-  { p: 0.424, pos: [5.0, 6.2, 5.4], look: [0, 5.8, -4.4], fov: 33 },
-  { p: 0.554, pos: [13.5, 10.0, 17.0], look: [0, 5.4, -4.4], fov: 45 },
-  /* Far enough back that the eight rows compress into a readable set. Close in,
-     the nearest row fills the bottom of frame and the far ones vanish — the
-     perspective ratio alone turns the histogram into a wash. */
-  { p: 0.706, pos: [2.0, 16.0, 44.0], look: [0, 2.2, 0.0], fov: 38 },
-  /* Oblique, not plan view: the routing arcs only read as arcs when they have
-     the void behind them. Straight down flattens the network into noise. */
-  { p: 0.87, pos: [2.0, 15.0, 30.0], look: [0, 2.6, -2.0], fov: 42 },
-  { p: 1.0, pos: [1.0, 11.0, 38.0], look: [0, 2.2, 0.0], fov: 40 },
+  { p: 0.1, pos: [14, 6.8, 15], look: [0, 4.4, -4.2], fov: 34 },
+  { p: 0.24, pos: [7.6, 6.6, 8.6], look: [0, 5.6, -4.4], fov: 34 },
+  { p: 0.41, pos: [5.0, 6.2, 5.6], look: [0, 5.8, -4.4], fov: 33 },
+  /* pull back for the shatter — the cloud needs room to come apart */
+  { p: 0.57, pos: [11.5, 8.5, 16.0], look: [0, 6.2, -4.4], fov: 44 },
+  /* Swing round to face the map front-on. The map is centred at world x=0 but
+     the camera aims LEFT of it (look.x ≈ -3.4) so the map sits in the right of
+     frame and the left third stays clear for the copy column. */
+  { p: 0.68, pos: [-2.4, 8.0, 17.5], look: [-3.4, 7.6, -4.0], fov: 40 },
+  { p: 0.79, pos: [-2.8, 7.7, 18.0], look: [-3.4, 7.5, -4.0], fov: 40 },
+  { p: 1.0, pos: [-2.8, 7.1, 23.5], look: [-3.2, 6.9, -3.0], fov: 40 },
 ];
 
 export default function Stage() {
@@ -115,15 +114,12 @@ export default function Stage() {
     );
     const edgeUniforms = (rig.edges.material as THREE.ShaderMaterial).uniforms;
 
-    // the coil itself — a real mesh until the cloud takes over from it
+    // the coil itself — a real mesh until the cloud takes over from it.
+    // built from primitives (see steelCoil) so its edges stay crisp instead of
+    // shading into a rounded pebble the way a single lathe does
     const coil = new THREE.Group();
-    const coilMesh = new THREE.Mesh(
-      coilGeo(COIL_RI, COIL_RO, COIL_W, 128),
-      chromeMat({ color: 0x8d97a3, roughness: 0.26, metalness: 0.95, envMapIntensity: 1.7 })
-    );
-    // the coil rides eye-to-the-side: axis across the trailer
-    coilMesh.rotation.z = Math.PI / 2;
-    coil.add(coilMesh);
+    const steel = steelCoil(COIL_RI, COIL_RO, COIL_W);
+    coil.add(steel);
     const coilEdges = new THREE.LineSegments(
       new THREE.EdgesGeometry(coilGeo(COIL_RI, COIL_RO, COIL_W, 64), 18),
       edgeShader()
@@ -213,9 +209,8 @@ export default function Stage() {
       manifest: actWindow("manifest"),
       lift: actWindow("lift"),
       scan: actWindow("scan"),
-      burst: actWindow("burst"),
-      field: actWindow("field"),
-      network: actWindow("network"),
+      burst: actWindow("burst"), // the shatter
+      india: actWindow("india"),
       dispatch: actWindow("dispatch"),
     };
 
@@ -276,15 +271,22 @@ export default function Stage() {
       edgeUniforms.uReveal.value = reveal;
       // wireframe stays as a faint overlay once the body is solid
       const bodyIn = reduced ? 1 : span(p, W.manifest[0] + 0.055, W.manifest[0] + 0.12);
-      const truckOut = 1 - span(p, W.burst[0], W.field[0]);
+      // the truck is gone by the time the shatter is well underway
+      const truckOut = 1 - span(p, W.burst[0], W.burst[1]);
       edgeUniforms.uOpacity.value = (1 - bodyIn * 0.72) * truckOut;
       applyAlpha(truckFades, bodyIn * truckOut);
 
-      /* ---- the coil lifts off the bed ---- */
-      const lift = smooth(span(p, W.lift[0], W.lift[1]));
+      /* ---- the coil lifts off the bed and turns once, scroll-locked ----
+         One full revolution over the lift, eased, so it settles back to its
+         start orientation exactly as the point cloud takes over — a time-based
+         idle spin would keep tumbling when the scroll stops and would never
+         register against the static cloud. */
+      const liftRaw = span(p, W.lift[0], W.lift[1]);
+      const lift = smooth(liftRaw);
       coil.position.y = lerp(COIL_HOME.y, 5.7, lift);
       coil.position.z = COIL_HOME.z;
-      coil.rotation.x = lift * 0.4 + time * 0.06;
+      coil.rotation.x = smooth(liftRaw) * Math.PI * 2;
+      coil.rotation.y = smoothPt.x * 0.12;
 
       /* ---- scan: the mesh hands over to the cloud ---- */
       const scan = span(p, W.scan[0], W.scan[1]);
@@ -302,13 +304,14 @@ export default function Stage() {
          so every state read as fog. The hold is what makes the field look like
          eight bands and the network look like a network. */
       const seg = (w: [number, number]) => span(p, w[0], w[0] + (w[1] - w[0]) * 0.62);
-      const stage = seg(W.burst) + seg(W.field) + seg(W.network);
+      const stage = seg(W.burst) + seg(W.india);
       cu.uStage.value = stage;
       world.stage = stage;
       world.indexed = Math.round(clamp(scan) * 1_048_576);
 
-      // the floor grid belongs to the physical half; fade it under the network
-      applyAlpha(floorFades, 1 - span(p, W.network[0], W.network[1]) * 0.65);
+      // the floor grid belongs to the physical half; fade it out as the coil
+      // shatters and the map takes over the frame
+      applyAlpha(floorFades, 1 - span(p, W.burst[0], W.india[0]) * 0.85);
 
       renderer.render(scene, camera);
 

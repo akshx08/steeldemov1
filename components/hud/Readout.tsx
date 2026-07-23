@@ -8,9 +8,9 @@ import { scrollProgress, world } from "@/lib/store";
  * The state ladder and the unit readout — the spine of the interface.
  *
  * The readout does the argument of the whole page in one number: it starts as
- * a MASS, becomes a POINT COUNT the moment the unit is resolved, then a FIELD
- * count, then a NODE count. The same object, measured in different units,
- * as it stops being cargo and starts being data.
+ * a MASS, becomes a POINT COUNT the moment the unit is resolved, and ends as a
+ * DESTINATION count once the cloud reassembles into the map. The same object,
+ * measured in different units, as it stops being cargo and becomes a place.
  *
  * Written straight to the DOM inside one rAF loop — no React state per frame.
  */
@@ -28,10 +28,9 @@ function reading(idx: number, t: number): Reading {
       return { value: n(t * 1_048_576), unit: "points" };
     case "burst":
       return { value: "1 048 576", unit: "points, no mass" };
-    case "field":
-      return { value: n(1 + Math.floor(t * 7.99)), unit: "fields indexed" };
-    case "network":
-      return { value: n(t * 412), unit: "nodes routed" };
+    case "india":
+      // destinations lighting up as the map assembles
+      return { value: n(t * 28), unit: "destinations" };
     default:
       return { value: "READY", unit: "for dispatch" };
   }

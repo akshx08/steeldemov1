@@ -8,8 +8,7 @@ import Hero from "@/components/sections/Hero";
 import Lift from "@/components/sections/Lift";
 import Scan from "@/components/sections/Scan";
 import Burst from "@/components/sections/Burst";
-import Fields from "@/components/sections/Fields";
-import Network from "@/components/sections/Network";
+import India from "@/components/sections/India";
 import Dispatch from "@/components/sections/Dispatch";
 import Footer from "@/components/sections/Footer";
 
@@ -18,7 +17,7 @@ import { ACTS } from "@/lib/site";
 const vh = (id: string) => ACTS.find((a) => a.id === id)!.vh;
 
 /**
- * One take, seven states. The WebGL film is fixed behind everything; each act
+ * One take, six states. The WebGL film is fixed behind everything; each act
  * is a tall scroll span with a sticky stage of copy over it.
  *
  * The left margin is reserved for the state ladder from `lg` up.
@@ -52,12 +51,8 @@ export default function Page() {
           <Burst />
         </Act>
 
-        <Act id="field" vh={vh("field")}>
-          <Fields />
-        </Act>
-
-        <Act id="network" vh={vh("network")}>
-          <Network />
+        <Act id="india" vh={vh("india")} place="left">
+          <India />
         </Act>
 
         <Act id="dispatch" vh={vh("dispatch")}>

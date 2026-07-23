@@ -15,7 +15,7 @@ export const BRAND = {
 };
 
 /* ------------------------------------------------------------------ */
-/* The film — seven states, one continuous take                       */
+/* The film — six states, one continuous take                         */
 /* ------------------------------------------------------------------ */
 
 export type Act = {
@@ -31,9 +31,8 @@ export const ACTS: Act[] = [
   { id: "manifest", state: "LOADED", readout: "24.6 t", vh: 150 },
   { id: "lift", state: "LIFT", readout: "1.62 m ⌀", vh: 165 },
   { id: "scan", state: "SCAN", readout: "1 048 576 pts", vh: 175 },
-  { id: "burst", state: "DISPERSE", readout: "no mass", vh: 150 },
-  { id: "field", state: "INDEX", readout: "8 fields", vh: 175 },
-  { id: "network", state: "ROUTE", readout: "412 nodes", vh: 190 },
+  { id: "burst", state: "SHATTER", readout: "no mass", vh: 150 },
+  { id: "india", state: "REACH", readout: "28 nodes", vh: 200 },
   { id: "dispatch", state: "DISPATCH", readout: "ready", vh: 150 },
 ];
 
@@ -56,12 +55,10 @@ export const actWindow = (id: string): [number, number] =>
 export const MORPH = {
   /** points appear on the coil's surface */
   scan: actWindow("scan"),
-  /** T0 → T1, the burst */
-  burst: actWindow("burst"),
-  /** T1 → T2, settling into the data field */
-  field: actWindow("field"),
-  /** T2 → T3, the field folding into the route network */
-  network: actWindow("network"),
+  /** T0 → T1, the coil shatters */
+  shatter: actWindow("burst"),
+  /** T1 → T2, the shards reassemble into India */
+  india: actWindow("india"),
 };
 
 /* ------------------------------------------------------------------ */
@@ -100,52 +97,30 @@ export const SCAN = {
   ],
 };
 
-export const FIELD = {
-  eyebrow: "03 — The field",
-  head: "Matter becomes\naddressable.",
-  body: "Once the object is resolved, it stops being cargo and starts being queryable. Eight fields describe any unit on the network, and every one of them is filterable, sortable, and joinable against every other unit that has ever moved.",
-  fields: [
-    { k: "IDENTITY", v: "unit, heat, certificate" },
-    { k: "GEOMETRY", v: "gauge, width, ⌀, mass" },
-    { k: "ORIGIN", v: "mill, rolling date, grade" },
-    { k: "CUSTODY", v: "every hand it passed through" },
-    { k: "POSITION", v: "yard, rack, bed, gate" },
-    { k: "MOTION", v: "vector, ETA, dwell" },
-    { k: "CONDITION", v: "edge, coating, moisture" },
-    { k: "LEDGER", v: "cost, invoice, terms" },
-  ],
+export const SHATTER = {
+  eyebrow: "03 — Release",
+  head: "Nothing about it\nwas ever\nthe steel.",
+  body: "Twenty-four tonnes come apart into the million points that described them. What is left is not cargo — it is the record of where this unit has to be.",
 };
 
-export const NETWORK = {
-  eyebrow: "04 — The network",
-  head: "One object.\nFour hundred\nplaces to be.",
-  body: "The same resolution applied to every unit, in every yard, on every truck, at once. Routing stops being a scheduling problem and becomes a lookup — the network already knows where the steel is and what it costs to move it.",
-  /* `display` opts a stat out of the count-up. "24/7" is an idiom, not a
-     quantity — animating it renders nonsense like "3/7" on the way up. */
-  stats: [
-    { v: 412, k: "Nodes", note: "yards, mills, ports, sidings" },
-    { v: 8, k: "Fields", note: "per unit, always populated" },
-    { v: 400, suffix: " ms", k: "Index latency", note: "capture to queryable" },
-    { display: "24/7", k: "Custody", note: "no unattributed hours" },
-  ] as { v?: number; suffix?: string; display?: string; k: string; note: string }[],
+export const REACH = {
+  eyebrow: "04 — Reach",
+  head: "Every unit\nhas a\ndestination.",
+  body: "The object resolved to a point is now resolved to a place. The shattered cloud reassembles as the country the steel moves across — every node a delivery, the whole reach held in a single frame.",
+  stat: { v: 28, k: "Destinations", note: "live on the map" },
+  note: "The map is abstract; the reach is the point.",
 };
 
 export const OPS = {
-  eyebrow: "05 — Operations",
+  eyebrow: "The console",
   head: "The console.",
-  body: "One surface for the whole network. Not a dashboard bolted onto a spreadsheet — the interface and the index are the same thing.",
-  modules: [
-    { no: "01", name: "Manifest", detail: "Every unit on the network, live, filterable down to heat number." },
-    { no: "02", name: "Custody", detail: "An unbroken chain from mill gate to customer gate. No gaps to reconcile." },
-    { no: "03", name: "Routing", detail: "Vectors solved against real capacity, not against a planning fiction." },
-    { no: "04", name: "Ledger", detail: "Cost lands on the unit, not on the month. Margin per coil, not per quarter." },
-  ],
+  body: "One surface for the whole reach — from the bed of the truck to the row in the ledger. The interface and the index are the same thing.",
 };
 
 export const DISPATCH = {
-  eyebrow: "06 — Dispatch",
-  head: "Put a unit\non the network.",
-  body: "LODE is a concept piece — a demonstration of what freight software could look like if it treated cargo as an object rather than a row. There is nothing to sign up for.",
+  eyebrow: "05 — Dispatch",
+  head: "Put a unit\non the map.",
+  body: "LODE is a concept piece — a demonstration of what freight software could look like if it treated cargo as an object, and every object as a place on the map. There is nothing to sign up for.",
   ctaPrimary: "See the build notes",
   ctaSecondary: "Back to the top",
 };
@@ -153,7 +128,6 @@ export const DISPATCH = {
 export const NAV = [
   { id: "lift", label: "Unit" },
   { id: "scan", label: "Resolution" },
-  { id: "field", label: "Fields" },
-  { id: "network", label: "Network" },
+  { id: "india", label: "Reach" },
   { id: "dispatch", label: "Dispatch" },
 ];

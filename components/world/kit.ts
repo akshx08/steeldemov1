@@ -159,6 +159,144 @@ export function dotTexture(size = 64) {
   return new THREE.CanvasTexture(c);
 }
 
+/** the wound face of a coil — concentric wraps with a dark bore in the middle */
+export function coilFaceTexture(size = 512) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const x = c.getContext("2d")!;
+  const r = rng(13);
+  const cx = size / 2;
+  x.fillStyle = "#20262d";
+  x.fillRect(0, 0, size, size);
+  // concentric wraps from the bore out to the rim
+  for (let i = 0; i < 150; i++) {
+    const rad = (i / 150) * (size * 0.5 - 3) + 3;
+    const v = 66 + r() * 96;
+    x.strokeStyle = `rgb(${v},${v + 5},${v + 11})`;
+    x.lineWidth = 0.6 + r() * 1.6;
+    x.beginPath();
+    x.arc(cx + (r() - 0.5) * 1.4, cx + (r() - 0.5) * 1.4, rad, 0, Math.PI * 2);
+    x.stroke();
+  }
+  // the bore, black with a lit lip
+  const grd = x.createRadialGradient(cx, cx, 0, cx, cx, size * 0.17);
+  grd.addColorStop(0, "#05070a");
+  grd.addColorStop(0.82, "#05070a");
+  grd.addColorStop(1, "#2a323b");
+  x.fillStyle = grd;
+  x.beginPath();
+  x.arc(cx, cx, size * 0.17, 0, Math.PI * 2);
+  x.fill();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** brushed-metal anisotropy — fine lines along one axis */
+export function brushTexture(size = 512) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const x = c.getContext("2d")!;
+  const r = rng(29);
+  x.fillStyle = "#8f99a3";
+  x.fillRect(0, 0, size, size);
+  for (let i = 0; i < 2400; i++) {
+    const y = r() * size;
+    const v = 96 + r() * 150;
+    x.strokeStyle = `rgba(${v},${v + 4},${v + 9},${0.05 + r() * 0.12})`;
+    x.lineWidth = r() * 1.3;
+    x.beginPath();
+    x.moveTo(0, y);
+    x.lineTo(size, y + (r() - 0.5) * 3);
+    x.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/**
+ * A steel coil built from primitives, axis along X so it rides eye-to-the-side.
+ *
+ * NOT a single LatheGeometry: a lathe closes its profile into one smooth vertex
+ * loop, so THREE averages the normals right across the barrel-to-face corner
+ * and the whole thing shades like a rounded pebble. Separate cylinder + rings
+ * keep the corners hard, which is what makes it read as wound steel rather than
+ * a river stone. The wound spiral lives on the faces; the barrel is brushed.
+ */
+export function steelCoil(ri: number, ro: number, w: number) {
+  const g = new THREE.Group();
+
+  const brush = brushTexture();
+  brush.repeat.set(7, 1);
+  const face = coilFaceTexture();
+
+  const barrelMat = new THREE.MeshStandardMaterial({
+    color: 0x929ca6,
+    map: brush,
+    metalness: 0.86,
+    roughness: 0.32,
+    envMapIntensity: 1.75,
+    transparent: true,
+  });
+  const faceMat = new THREE.MeshStandardMaterial({
+    color: 0xb0b9c2,
+    map: face,
+    metalness: 0.68,
+    roughness: 0.44,
+    envMapIntensity: 1.5,
+    transparent: true,
+  });
+  const boreMat = new THREE.MeshStandardMaterial({
+    color: 0x2c333b,
+    metalness: 0.7,
+    roughness: 0.55,
+    envMapIntensity: 1.1,
+    side: THREE.BackSide,
+    transparent: true,
+  });
+  const strapMat = new THREE.MeshStandardMaterial({
+    color: 0x5f6874,
+    metalness: 0.55,
+    roughness: 0.38,
+    envMapIntensity: 1.3,
+    transparent: true,
+  });
+
+  // outer barrel (cylinder axis is Y; rotate so it lies along X)
+  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(ro, ro, w, 200, 1, true), barrelMat);
+  barrel.rotation.z = Math.PI / 2;
+  g.add(barrel);
+
+  // the bore, a hair longer so its rim never z-fights the faces
+  const bore = new THREE.Mesh(
+    new THREE.CylinderGeometry(ri, ri, w * 1.006, 120, 1, true),
+    boreMat
+  );
+  bore.rotation.z = Math.PI / 2;
+  g.add(bore);
+
+  // the two wound faces
+  for (const s of [-1, 1]) {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(ri, ro, 200, 1), faceMat.clone());
+    // a RingGeometry faces +Z; turn it to face ±X
+    ring.rotation.y = (s * Math.PI) / 2;
+    ring.position.x = (s * w) / 2;
+    g.add(ring);
+  }
+
+  // two banding straps around the barrel
+  for (const sx of [-0.32, 0.32]) {
+    const strap = new THREE.Mesh(new THREE.TorusGeometry(ro + 0.008, 0.02, 10, 80), strapMat);
+    strap.rotation.y = Math.PI / 2; // hole along X, so it wraps the barrel
+    strap.position.x = sx * w;
+    g.add(strap);
+  }
+
+  return g;
+}
+
 /* ------------------------------------------------------------------ */
 /* Fade plumbing                                                       */
 /* ------------------------------------------------------------------ */

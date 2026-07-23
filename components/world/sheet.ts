@@ -26,14 +26,24 @@ import { COIL_RI, COIL_RO, COIL_W } from "./truck";
 /* India geometry (shared with the map nodes)                          */
 /* ------------------------------------------------------------------ */
 
+/* Clockwise outline of the Indian mainland. The far north-east (Arunachal,
+   Nagaland) is deliberately capped near lon 89 rather than run out to 96 — at
+   the strip resolution here a full NE appendage separated by the Bay of Bengal
+   just reads as a spike, and the main-body silhouette is what says "India".
+   The widest belly sits around lat 22–23 (Kutch to the Bengal coast), tapering
+   to the point at Kanyakumari and to a narrow peak in Kashmir. */
 const INDIA: [number, number][] = [
-  [74.5, 34.5], [78.0, 32.5], [81.0, 30.2], [84.5, 28.0], [88.2, 27.2],
-  [91.5, 27.5], [94.5, 28.2], [96.2, 27.6], [95.2, 26.5], [94.0, 24.2],
-  [92.8, 23.5], [91.8, 23.2], [91.0, 23.6], [89.2, 22.0], [87.0, 21.0],
-  [85.0, 19.5], [83.5, 17.8], [81.5, 16.2], [80.3, 13.1], [79.8, 11.4],
-  [78.8, 9.4], [77.5, 8.1], [76.5, 9.5], [75.0, 12.0], [73.8, 15.4],
-  [72.9, 18.5], [72.6, 21.0], [70.0, 20.9], [69.0, 22.5], [68.2, 23.7],
-  [70.5, 24.5], [72.5, 27.0], [74.0, 30.0], [74.5, 32.5],
+  // north border, west → east
+  [75.0, 34.3], [76.4, 33.2], [77.8, 32.6], [79.4, 31.2], [80.9, 30.1],
+  [82.4, 28.4], [84.3, 27.6], [86.4, 27.2], [88.2, 26.9], [89.4, 26.1],
+  // east edge / Bay of Bengal coast, north → south
+  [89.0, 24.4], [88.1, 23.0], [87.1, 21.4], [85.3, 19.7], [83.6, 18.0],
+  [82.2, 16.8], [80.9, 15.2], [80.2, 13.4], [79.9, 11.6], [78.9, 9.3],
+  [77.5, 8.1], // Kanyakumari — southern point
+  // west coast, south → north
+  [76.3, 9.7], [75.0, 12.3], [74.0, 14.8], [73.2, 16.9], [72.8, 19.2],
+  [72.6, 21.1], [70.6, 20.7], [69.2, 22.2], [68.2, 23.7], [69.9, 24.3],
+  [71.5, 25.6], [73.0, 28.0], [74.1, 30.4], [74.4, 32.4],
 ];
 
 /** unlabelled hub nodes at real-ish distribution centres — abstract, no names */
@@ -63,7 +73,18 @@ const POLY = INDIA.map(([lo, la]) => proj(lo, la));
 const Y_LO = Math.min(...POLY.map((p) => p[1]));
 const Y_HI = Math.max(...POLY.map((p) => p[1]));
 
-/** min/max local x of the India outline at a given local y (scanline) */
+/** local x of the map centre longitude — the main landmass always contains it */
+const X_CENTRE = (LON_C - LON_C) * MAP_S; // == 0, but written for intent
+
+/**
+ * The x-span of the India outline at a given local y — but the MAIN landmass
+ * segment, not min→max. Taking min→max fills every gap: at a latitude that
+ * crosses both the peninsula and a separate lobe (or the Bay of Bengal), it
+ * would stretch one strip clean across the water. Instead we collect the
+ * scanline crossings, pair them into inside-segments, and return the segment
+ * that contains the map centre — i.e. the body of the country — so islands and
+ * offshoots never widen a strip.
+ */
 function spanAtY(y: number): [number, number] {
   const xs: number[] = [];
   for (let i = 0, k = POLY.length - 1; i < POLY.length; k = i++) {
@@ -72,7 +93,18 @@ function spanAtY(y: number): [number, number] {
     if (yi > y !== yk > y) xs.push(xi + ((xk - xi) * (y - yi)) / (yk - yi));
   }
   if (xs.length < 2) return [0, 0];
-  return [Math.min(...xs), Math.max(...xs)];
+  xs.sort((a, b) => a - b);
+
+  // pair consecutive crossings into inside-segments; keep the one holding the
+  // centre, else the widest
+  let best: [number, number] | null = null;
+  let widest: [number, number] = [xs[0], xs[1]];
+  for (let i = 0; i + 1 < xs.length; i += 2) {
+    const seg: [number, number] = [xs[i], xs[i + 1]];
+    if (seg[1] - seg[0] > widest[1] - widest[0]) widest = seg;
+    if (X_CENTRE >= seg[0] && X_CENTRE <= seg[1]) best = seg;
+  }
+  return best ?? widest;
 }
 
 /* ------------------------------------------------------------------ */
@@ -275,7 +307,11 @@ export function mapNodes(): MapNodes {
   const ringGeo = new THREE.RingGeometry(0.12, 0.16, 28);
 
   HUBS.forEach(([lo, la], i) => {
-    const [x, y] = proj(lo, la);
+    const [px, y] = proj(lo, la);
+    // pull every hub inside the landmass at its latitude, so a node can never
+    // float off the coast when the outline changes shape
+    const [slo, shi] = spanAtY(y);
+    const x = shi > slo ? Math.min(shi - 0.25, Math.max(slo + 0.25, px)) : px;
     const p = new THREE.Vector3(MAP_CENTRE.x + x, MAP_CENTRE.y + y, MAP_CENTRE.z + 0.08);
 
     const core = new THREE.Mesh(coreGeo, glowMat(C.signalHi, 2.2));

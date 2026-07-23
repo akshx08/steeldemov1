@@ -24,7 +24,7 @@ export default {
         data: "#BFD4E8",
       },
       fontFamily: {
-        disp: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        disp: ["var(--font-grotesk)", "system-ui", "sans-serif"],
         label: ["var(--font-jost)", "system-ui", "sans-serif"],
         body: ["var(--font-inter)", "system-ui", "sans-serif"],
         spec: ["var(--font-mono)", "ui-monospace", "monospace"],

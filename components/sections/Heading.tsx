@@ -19,15 +19,15 @@ export default function Heading({
 }) {
   return (
     <div className={className}>
-      <p className="label mb-6 flex items-center gap-3 text-ash">
+      <p className="label label-lg mb-6 flex items-center gap-3 text-ash">
         <span className="h-px w-9 bg-signal" />
         {eyebrow}
       </p>
       <h2
-        className={`display text-white ${
+        className={`display display-hero text-white ${
           size === "lg"
-            ? "text-[8.4vw] leading-[0.98] md:text-[6vw] lg:text-[4.6vw]"
-            : "text-[7.4vw] leading-[1] md:text-[4.6vw] lg:text-[3.5vw]"
+            ? "text-[8.6vw] leading-[0.92] md:text-[6vw] lg:text-[4.7vw]"
+            : "text-[7.6vw] leading-[0.94] md:text-[4.6vw] lg:text-[3.5vw]"
         }`}
       >
         {head.split("\n").map((l) => (
@@ -36,7 +36,7 @@ export default function Heading({
           </span>
         ))}
       </h2>
-      {body && <p className="mt-7 max-w-[52ch] text-[15px] leading-relaxed text-ash">{body}</p>}
+      {body && <p className="lead mt-7 max-w-[52ch] text-ash">{body}</p>}
       {children}
     </div>
   );

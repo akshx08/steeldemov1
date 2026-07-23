@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BRAND, NAV } from "@/lib/site";
+import { BRAND, CONTACT, NAV } from "@/lib/site";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function Nav() {
       >
         <div className="flex items-center justify-between px-6 py-5 md:px-10">
           <a href="#top" className="flex items-baseline gap-3">
-            <span className="font-disp text-[17px] font-semibold tracking-[0.3em] text-white">
+            <span className="font-disp text-[17px] font-semibold tracking-[0.2em] text-white">
               {BRAND.wordmark}
             </span>
             <span className="spec hidden text-mute sm:inline">{BRAND.descriptor}</span>
@@ -43,6 +43,9 @@ export default function Nav() {
                 {n.label}
               </a>
             ))}
+            <a href={CONTACT.wa} target="_blank" rel="noreferrer" className="btn">
+              Send a drawing
+            </a>
           </nav>
 
           {/* No aria-label: it would override the visible Index/Close text,
@@ -98,7 +101,14 @@ export default function Nav() {
             {n.label}
           </a>
         ))}
-        <p className="spec mt-8 text-mute">{BRAND.tagline}</p>
+        <a
+          href={CONTACT.phoneHref}
+          onClick={() => setOpen(false)}
+          className="spec mt-8 text-signalHi"
+        >
+          {CONTACT.phone}
+        </a>
+        <p className="spec mt-1 text-mute">{BRAND.tagline}</p>
       </div>
     </>
   );

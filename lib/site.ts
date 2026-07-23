@@ -1,39 +1,55 @@
 /**
- * LODE — the freight operating system.
+ * N.R. Trading Co. — flat steel, cut to your drawing.
  *
- * A concept brand, not a real company: every figure here is invented for the
- * piece and is marked as such. Nothing in this file should be lifted into a
- * real client build without being replaced.
+ * FACT DISCIPLINE — read before editing.
+ * Every figure here is either taken verbatim from N.R. Trading Co.'s own
+ * material or arithmetically derived from it (the gauge envelope is the min and
+ * max of the product table). Nothing is invented.
+ *
+ * Deliberately ABSENT because it was never supplied: tonnage, warehouse area,
+ * headcount, client count, cities served, revenue, awards, growth timeline.
+ * The film is told with the specifications the company actually controls — the
+ * India map is "where the steel is needed", never a fabricated destination
+ * count; the one number on it is the six real source mills.
  */
 
 export const BRAND = {
-  name: "LODE",
-  /** a lode is a vein of ore in rock — and the thing on the truck */
-  wordmark: "LODE",
-  tagline: "The freight operating system.",
-  descriptor: "Concept · not a live service",
+  name: "N.R. Trading Co.",
+  wordmark: "N.R. TRADING",
+  since: 2005,
+  tagline: "Flat steel, held to the micron.",
+  descriptor: "Since 2005 · Flat steel",
+};
+
+export const CONTACT = {
+  phone: "+91 98711 50620",
+  phoneHref: "tel:+919871150620",
+  wa: "https://wa.me/919871150620",
+  waLabel: "WhatsApp",
+  email: "sachingrg441@gmail.com",
+  hours: "Mon – Sat · 09:30 – 19:00 IST",
 };
 
 /* ------------------------------------------------------------------ */
-/* The film — six states, one continuous take                         */
+/* The film — one coil, processed. Six states, one continuous take.    */
 /* ------------------------------------------------------------------ */
 
 export type Act = {
   id: string;
   /** HUD state name */
   state: string;
-  /** HUD sub-readout */
+  /** HUD sub-readout — a verified spec */
   readout: string;
   vh: number;
 };
 
 export const ACTS: Act[] = [
-  { id: "manifest", state: "LOADED", readout: "24.6 t", vh: 150 },
-  { id: "lift", state: "LIFT", readout: "1.62 m ⌀", vh: 150 },
-  { id: "uncoil", state: "UNROLL", readout: "312 m", vh: 200 },
-  { id: "slit", state: "SLIT", readout: "46 strips", vh: 150 },
-  { id: "india", state: "REACH", readout: "28 nodes", vh: 210 },
-  { id: "dispatch", state: "DISPATCH", readout: "ready", vh: 150 },
+  { id: "manifest", state: "LOADED", readout: "IS 2062", vh: 150 },
+  { id: "lift", state: "LIFT", readout: "1.6–25 mm", vh: 150 },
+  { id: "uncoil", state: "UNROLL", readout: "6 000 mm", vh: 200 },
+  { id: "slit", state: "SLIT", readout: "25 mm", vh: 150 },
+  { id: "india", state: "REACH", readout: "6 mills", vh: 210 },
+  { id: "dispatch", state: "DISPATCH", readout: "24 hr", vh: 150 },
 ];
 
 export const TOTAL_VH = ACTS.reduce((a, b) => a + b.vh, 0);
@@ -51,13 +67,9 @@ export const ACT_WINDOWS: [number, number][] = (() => {
 export const actWindow = (id: string): [number, number] =>
   ACT_WINDOWS[ACTS.findIndex((a) => a.id === id)] ?? [0, 1];
 
-/** where in the film each morph state takes over — the whole choreography */
 export const MORPH = {
-  /** coil unrolls into a flat sheet */
   uncoil: actWindow("uncoil"),
-  /** the sheet is slit into strips */
   slit: actWindow("slit"),
-  /** the strips lay down as India */
   india: actWindow("india"),
 };
 
@@ -66,74 +78,98 @@ export const MORPH = {
 /* ------------------------------------------------------------------ */
 
 export const HERO = {
-  eyebrow: "Freight operating system",
-  head: ["EVERY TONNE,", "ADDRESSABLE."],
-  sub: "A coil leaves a mill as twenty-four tonnes of steel and arrives as a line on an invoice. LODE is what happens in between — the same object, tracked as matter and as data, from the bed of the truck to the row in the ledger.",
-  cue: "Scroll to unload",
+  eyebrow: "N.R. Trading · since 2005",
+  head: ["FLAT STEEL,", "CUT TO YOUR", "DRAWING."],
+  sub: "N.R. Trading buys flat steel off India's largest mills — hot rolled, cold rolled, galvanised, galvalume and colour coated — and delivers it slit and cut to your drawing, with the mill's own certificate and a firm price inside one working day.",
+  cue: "See it processed",
 };
 
 export const LIFT = {
-  eyebrow: "01 — The unit",
-  head: "Freight is not\na shipment.\nIt is an object.",
-  body: "Most systems track a consignment: a number, a weight, a destination. LODE tracks the thing itself. Its gauge, its heat number, its mill certificate, the saddle it sat on, the crane that moved it, the truck it left on.",
+  eyebrow: "01 — The coil",
+  head: "It arrives\nas a coil.",
+  body: "Every order starts as one of eight flat products, bought against its standard off a primary mill — not a warehouse, not a middleman. Gauge, width and heat number are known before it leaves the gate.",
   specs: [
-    { k: "Unit", v: "LD-0001" },
-    { k: "Product", v: "HR coil · IS 2062" },
-    { k: "Mass", v: "24.6 t" },
-    { k: "Outer ⌀", v: "1 620 mm" },
-    { k: "Width", v: "1 250 mm" },
-    { k: "Heat", v: "H-44802" },
+    { k: "Product", v: "HR Coil" },
+    { k: "Standard", v: "IS 2062" },
+    { k: "Gauge", v: "1.6 – 25.0 mm" },
+    { k: "Bought from", v: "6 primary mills" },
+    { k: "Certificate", v: "mill's own, per heat" },
+    { k: "The book", v: "8 flat products" },
   ],
 };
 
 export const UNCOIL = {
   eyebrow: "02 — Unroll",
-  head: "It arrives\nwound.",
-  body: "A coil is a sheet with its length hidden — three hundred metres of steel rolled into something a crane can lift. Unwound, the whole unit lies flat, edge to edge, a single continuous surface.",
+  head: "A coil is\na sheet,\nwound.",
+  body: "The coil is one continuous sheet, rolled for the crane. Unwound, it goes to length — cut to your drawing, up to six metres, and measured against the number rather than against habit.",
   points: [
-    { k: "Unrolled length", v: "≈ 312 m" },
-    { k: "Gauge", v: "1.6 mm · IS 2062" },
-    { k: "Width", v: "1 250 mm" },
+    { k: "Cut to length", v: "≤ 6 000 mm" },
+    { k: "Standard", v: "IS 2062" },
+    { k: "Tolerance", v: "measured to drawing" },
   ],
 };
 
 export const SLIT = {
   eyebrow: "03 — Slit",
-  head: "Then we\nslit it.",
-  body: "Circular knives split the sheet along its length into strips, each cut to width. One coil becomes many — every strip sized for the press it is going to.",
+  head: "Then it's\nslit to\nwidth.",
+  body: "The sheet is slit into strips, each sized for the press it is going to — down to twenty-five millimetres, edge deburred, and every strip checked against the drawing before it ships.",
   points: [
-    { k: "Strips", v: "46 across" },
-    { k: "Tolerance", v: "± 0.1 mm" },
-    { k: "Edge", v: "deburred, wound-ready" },
+    { k: "Slit to", v: "≥ 25 mm" },
+    { k: "Cut to length", v: "≤ 6 000 mm" },
+    { k: "Papers", v: "ahead of the truck" },
   ],
 };
 
 export const REACH = {
   eyebrow: "04 — Reach",
-  head: "Every strip\nhas a\ndestination.",
-  body: "The slit steel lays down as the country it ships across — each band a latitude, each node a delivery. The same object that arrived as one coil leaves as a map of where it is going.",
-  stat: { v: 28, k: "Destinations", note: "live on the map" },
-  note: "The map is abstract; the reach is the point.",
-};
-
-export const OPS = {
-  eyebrow: "The console",
-  head: "The console.",
-  body: "One surface for the whole reach — from the bed of the truck to the row in the ledger. The interface and the index are the same thing.",
+  head: "Wherever\nIndia builds\nwith steel.",
+  body: "Bought off six of India's primary mills — Tata, JSW, SAIL, Jindal, AM/NS and POSCO — slit and cut to your drawing, and sent where the steel is needed. One coil in; flat product out, on its way across the country.",
+  stat: { v: 6, k: "Source mills", note: "India's primary producers" },
+  note: "The map is where the steel goes — not a number we invent.",
 };
 
 export const DISPATCH = {
   eyebrow: "05 — Dispatch",
-  head: "Put a unit\non the map.",
-  body: "LODE is a concept piece — a demonstration of what freight software could look like if it treated cargo as an object, and every object as a place on the map. There is nothing to sign up for.",
-  ctaPrimary: "See the build notes",
-  ctaSecondary: "Back to the top",
+  head: "Send the\ndrawing.",
+  body: "Grade, gauge, width, quantity and where it has to be. A firm price comes back inside one working day, with the mill's own certificate riding on every load.",
+  note: "There is no form here on purpose — a specification is faster to read than a form is to fill.",
 };
 
+/* ------------------------------------------------------------------ */
+/* Reference data — the book, the mills, the standing terms            */
+/* ------------------------------------------------------------------ */
+
+export const PRODUCTS = [
+  { no: "01", name: "HR Coil", full: "Hot Rolled Coil", std: "IS 2062", range: "1.6 – 25.0 mm" },
+  { no: "02", name: "CR Coil", full: "Cold Rolled Coil", std: "IS 513", range: "0.30 – 3.00 mm" },
+  { no: "03", name: "GP Sheet & Coil", full: "Galvanised Plain", std: "IS 277 · Z90–Z275", range: "0.18 – 3.00 mm" },
+  { no: "04", name: "GL Sheet & Coil", full: "Galvalume", std: "AZ70 – AZ150", range: "0.25 – 1.60 mm" },
+  { no: "05", name: "PPGI", full: "Pre-Painted Galvanised Iron", std: "RMP · SMP · PVDF", range: "0.25 – 1.20 mm" },
+  { no: "06", name: "PPGL", full: "Pre-Painted Galvalume", std: "Coated galvalume", range: "0.25 – 1.20 mm" },
+  { no: "07", name: "Colour Coated", full: "To any RAL on order", std: "Any RAL", range: "Coil · sheet" },
+  { no: "08", name: "Processed", full: "Slit · cut to length", std: "CTL · slitting", range: "To drawing" },
+] as const;
+
+export const MILLS = [
+  { name: "Tata Steel", note: "HR · CR · GP" },
+  { name: "JSW Steel", note: "Coated · Colour" },
+  { name: "SAIL", note: "HR · Structural" },
+  { name: "Jindal Steel", note: "HR · Plate" },
+  { name: "AM/NS India", note: "GL · PPGL" },
+  { name: "POSCO", note: "CR · Precision" },
+] as const;
+
+export const TERMS = [
+  { no: "I", head: "A price in 24 hours", body: "A number you can plan around — not a mood, not a call-back." },
+  { no: "II", head: "The mill's own certificate", body: "Original test certificates ride with every load, traceable to the heat." },
+  { no: "III", head: "Papers beat the truck", body: "Invoice, e-way bill, LR and certificates land before the driver calls." },
+  { no: "IV", head: "Tolerance is measured", body: "Slitting and cut-to-length checked against the drawing, not against habit." },
+];
+
 export const NAV = [
-  { id: "lift", label: "Unit" },
-  { id: "uncoil", label: "Unroll" },
+  { id: "lift", label: "Coil" },
+  { id: "uncoil", label: "Process" },
   { id: "slit", label: "Slit" },
   { id: "india", label: "Reach" },
-  { id: "dispatch", label: "Dispatch" },
+  { id: "dispatch", label: "Contact" },
 ];

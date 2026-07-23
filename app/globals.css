@@ -33,31 +33,64 @@ body {
 
 /* ------------------------------------------------------------------ */
 /* Type                                                                */
+/*                                                                     */
+/* Space Grotesk display / Jost labels / Inter body / JetBrains specs. */
+/* The scale is deliberate: display is the only large voice; everything */
+/* else is small, tracked, and quiet, so the hierarchy is loud→silent   */
+/* with nothing in the mushy middle.                                    */
 /* ------------------------------------------------------------------ */
 
-/* Light weights at large sizes — the opposite of a heavy industrial
-   display. Reads as instrumentation, not as signage. */
+/* Display — regular weight, not thin: steel should read solid. Tight
+   negative tracking + tight leading is what makes a grotesk look
+   engineered rather than generic. Optical sizing tightens the very
+   large sizes further via the utilities below. */
 .display {
   @apply font-disp;
-  font-weight: 300;
-  line-height: 0.94;
-  letter-spacing: -0.022em;
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.025em;
   text-wrap: balance;
+  font-feature-settings: "ss01", "ss03";
+}
+/* the hero and section heads scale their tracking with their size —
+   the bigger the type, the tighter it wants to be */
+.display-hero {
+  letter-spacing: -0.035em;
+  line-height: 0.88;
+}
+
+/* lead paragraph — the one intro line under a headline, a touch larger
+   than body with an open measure */
+.lead {
+  @apply font-body;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+}
+
+body {
+  font-feature-settings: "cv05", "ss01"; /* Inter: single-storey a, etc. */
 }
 
 .label {
   @apply font-label uppercase;
   font-size: 10.5px;
   font-weight: 500;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.28em;
   line-height: 1.4;
+}
+/* a slightly larger label for section eyebrows */
+.label-lg {
+  font-size: 11.5px;
+  letter-spacing: 0.3em;
 }
 
 .spec {
   @apply font-spec;
   font-size: 11px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "zero"; /* slashed zero, tabular */
 }
 
 /* ------------------------------------------------------------------ */

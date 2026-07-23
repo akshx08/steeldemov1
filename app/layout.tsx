@@ -1,11 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Jost, Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Jost, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const archivo = Archivo({
-  weight: ["300", "400", "500", "600"],
+/* Type system:
+   Space Grotesk — display. Engineered geometric grotesque; reads like precision
+     instrumentation, which is the right register for gauges and standards.
+   JetBrains Mono — specs and figures (tabular numerals).
+   Jost — labels / eyebrows (small caps).
+   Inter — body, always. */
+const grotesk = Space_Grotesk({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
-  variable: "--font-archivo",
+  variable: "--font-grotesk",
 });
 const jost = Jost({
   weight: ["400", "500", "600"],
@@ -20,28 +26,28 @@ const mono = JetBrains_Mono({
 });
 
 const DESCRIPTION =
-  "A concept piece: freight software that treats cargo as an object rather than a row. One coil, resolved to a million points, indexed across a 412-node network.";
+  "N.R. Trading Co. — flat steel bought off India's largest mills since 2005. HR, CR, GP, GL, PPGI, PPGL and colour coated, slit and cut to your drawing, with the mill's own certificate and a firm price inside one working day.";
 
 export const metadata: Metadata = {
   // relative OG/icon URLs need a base to resolve against when shared
-  metadataBase: new URL("https://lode.example"),
-  title: "LODE — the freight operating system",
+  metadataBase: new URL("https://nrtrading.example"),
+  title: "N.R. Trading Co. — flat steel, cut to your drawing",
   description: DESCRIPTION,
-  applicationName: "LODE",
+  applicationName: "N.R. Trading Co.",
   openGraph: {
-    title: "LODE — the freight operating system",
+    title: "N.R. Trading Co. — flat steel, cut to your drawing",
     description: DESCRIPTION,
-    siteName: "LODE",
+    siteName: "N.R. Trading Co.",
     type: "website",
-    locale: "en_GB",
+    locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LODE — the freight operating system",
+    title: "N.R. Trading Co. — flat steel, cut to your drawing",
     description: DESCRIPTION,
   },
   robots: {
-    // a concept piece, not a service — keep it out of the index
+    // a demo build, not the company's live domain — keep it out of the index
     index: false,
     follow: false,
   },
@@ -61,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
          hydrates, which React would otherwise report as a server/client
          mismatch on every `?reduced=1` load */
       suppressHydrationWarning
-      className={`${archivo.variable} ${jost.variable} ${inter.variable} ${mono.variable}`}
+      className={`${grotesk.variable} ${jost.variable} ${inter.variable} ${mono.variable}`}
     >
       <head>
         {/* `?reduced=1` forces the reduced-motion path. Set before first paint

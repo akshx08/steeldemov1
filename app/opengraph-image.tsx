@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { BRAND, HERO } from "@/lib/site";
 
-export const alt = "LODE — the freight operating system";
+export const alt = "N.R. Trading Co. — flat steel, cut to your drawing";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -44,21 +44,24 @@ export default function OpengraphImage() {
           style={{
             display: "flex",
             flexDirection: "column",
-            fontSize: 96,
-            lineHeight: 1.02,
-            letterSpacing: -2,
+            fontSize: 92,
+            lineHeight: 0.98,
+            letterSpacing: -3,
           }}
         >
-          <div style={{ display: "flex" }}>{HERO.head[0]}</div>
-          <div style={{ display: "flex" }}>{HERO.head[1]}</div>
+          {HERO.head.map((l) => (
+            <div key={l} style={{ display: "flex" }}>
+              {l}
+            </div>
+          ))}
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <div style={{ fontSize: 52, letterSpacing: 16, fontWeight: 600 }}>
+          <div style={{ fontSize: 48, letterSpacing: 12, fontWeight: 600 }}>
             {BRAND.wordmark}
           </div>
           <div style={{ display: "flex", fontSize: 22, color: "#575E69", letterSpacing: 2 }}>
-            coil → sheet → slit → India
+            coil → sheet → slit → delivered
           </div>
         </div>
       </div>

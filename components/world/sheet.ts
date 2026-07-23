@@ -46,14 +46,28 @@ const INDIA: [number, number][] = [
   [71.5, 25.6], [73.0, 28.0], [74.1, 30.4], [74.4, 32.4],
 ];
 
-/** unlabelled hub nodes at real-ish distribution centres — abstract, no names */
-const HUBS: [number, number][] = [
-  [77.2, 28.6], [72.8, 19.1], [88.4, 22.6], [80.3, 13.1], [78.5, 17.4],
-  [77.6, 12.97], [72.6, 23.0], [75.8, 26.9], [81.8, 25.4], [85.1, 25.6],
-  [83.0, 25.3], [76.3, 9.9], [79.1, 21.1], [77.4, 23.2], [73.9, 18.5],
-  [78.0, 30.3], [91.7, 26.1], [83.3, 17.7], [80.9, 26.8], [85.8, 20.3],
-  [74.6, 31.6], [70.8, 22.3], [76.6, 30.7], [82.9, 21.5], [86.9, 23.7],
-  [78.7, 10.8], [75.4, 15.3], [88.6, 26.7],
+/**
+ * The six primary mills N.R. Trading buys from, at their real works — the
+ * prominent nodes, and the one count on the map ("6 source mills"). Spread
+ * across the country: Gujarat, Maharashtra, Karnataka, Chhattisgarh (×2),
+ * Jharkhand.
+ */
+const MILLS_GEO: [number, number][] = [
+  [72.7, 21.2], // AM/NS India — Hazira, Gujarat
+  [73.9, 18.5], // POSCO — Maharashtra
+  [76.7, 15.1], // JSW — Vijayanagar, Karnataka
+  [81.4, 21.2], // SAIL — Bhilai, Chhattisgarh
+  [83.4, 22.0], // Jindal — Raigarh, Chhattisgarh
+  [86.2, 22.8], // Tata Steel — Jamshedpur, Jharkhand
+];
+
+/** abstract secondary points — the reach the steel is sent into. Uncounted:
+ *  the map is where the steel goes, never a fabricated destination total. */
+const REACH_GEO: [number, number][] = [
+  [77.2, 28.6], [80.3, 13.1], [78.5, 17.4], [77.6, 12.97], [75.8, 26.9],
+  [81.8, 25.4], [76.3, 9.9], [79.1, 21.1], [77.4, 23.2], [78.0, 30.3],
+  [83.3, 17.7], [85.8, 20.3], [74.6, 31.6], [70.9, 22.4], [82.9, 24.2],
+  [78.7, 10.8], [75.4, 15.3], [80.5, 27.0],
 ];
 
 const LON_C = 82.0;
@@ -295,29 +309,32 @@ export type MapNodes = {
   dispose: () => void;
 };
 
+/** clamp a projected point inside the landmass at its latitude */
+function onLand(lo: number, la: number): THREE.Vector3 {
+  const [px, y] = proj(lo, la);
+  const [slo, shi] = spanAtY(y);
+  const x = shi > slo ? Math.min(shi - 0.25, Math.max(slo + 0.25, px)) : px;
+  return new THREE.Vector3(MAP_CENTRE.x + x, MAP_CENTRE.y + y, MAP_CENTRE.z + 0.08);
+}
+
 export function mapNodes(): MapNodes {
   const group = new THREE.Group();
   const dot = dotTexture();
 
-  const cores: THREE.Mesh[] = [];
+  // ---- the six mills: prominent, with a radar ping ----
+  const mills: THREE.Mesh[] = [];
   const rings: THREE.Mesh[] = [];
+  const millGeo = new THREE.SphereGeometry(0.11, 14, 12);
+  const ringGeo = new THREE.RingGeometry(0.14, 0.185, 32);
   const phase: number[] = [];
 
-  const coreGeo = new THREE.SphereGeometry(0.08, 12, 10);
-  const ringGeo = new THREE.RingGeometry(0.12, 0.16, 28);
+  MILLS_GEO.forEach(([lo, la], i) => {
+    const p = onLand(lo, la);
 
-  HUBS.forEach(([lo, la], i) => {
-    const [px, y] = proj(lo, la);
-    // pull every hub inside the landmass at its latitude, so a node can never
-    // float off the coast when the outline changes shape
-    const [slo, shi] = spanAtY(y);
-    const x = shi > slo ? Math.min(shi - 0.25, Math.max(slo + 0.25, px)) : px;
-    const p = new THREE.Vector3(MAP_CENTRE.x + x, MAP_CENTRE.y + y, MAP_CENTRE.z + 0.08);
-
-    const core = new THREE.Mesh(coreGeo, glowMat(C.signalHi, 2.2));
+    const core = new THREE.Mesh(millGeo, glowMat(C.signalHi, 2.4));
     core.position.copy(p);
     group.add(core);
-    cores.push(core);
+    mills.push(core);
 
     const ring = new THREE.Mesh(
       ringGeo,
@@ -334,9 +351,8 @@ export function mapNodes(): MapNodes {
     group.add(ring);
     rings.push(ring);
 
-    // a soft halo so the node reads round, not square
     const halo = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.62, 0.62),
+      new THREE.PlaneGeometry(0.8, 0.8),
       new THREE.MeshBasicMaterial({
         map: dot,
         color: C.signalHi,
@@ -353,26 +369,43 @@ export function mapNodes(): MapNodes {
     phase.push((i * 2.399) % (Math.PI * 2));
   });
 
+  // ---- the reach: small, quiet, uncounted delivery points ----
+  const reach: THREE.Mesh[] = [];
+  const reachGeo = new THREE.SphereGeometry(0.05, 8, 6);
+  REACH_GEO.forEach(([lo, la]) => {
+    const core = new THREE.Mesh(reachGeo, glowMat(0xffb8ba, 1.5));
+    core.position.copy(onLand(lo, la));
+    group.add(core);
+    reach.push(core);
+  });
+
   const update = (reveal: number, time: number) => {
-    const n = cores.length;
-    for (let i = 0; i < n; i++) {
-      // nodes light up in sequence as the map settles
-      const on = Math.min(1, Math.max(0, reveal * n * 1.3 - i));
+    // the mills light up first, in sequence
+    const nm = mills.length;
+    for (let i = 0; i < nm; i++) {
+      const on = Math.min(1, Math.max(0, reveal * nm * 1.4 - i));
       const pulse = 0.5 + 0.5 * Math.sin(time * 2.1 + phase[i]);
 
-      const core = cores[i];
+      const core = mills[i];
       core.scale.setScalar(on * (0.85 + pulse * 0.4));
       (core.material as THREE.MeshBasicMaterial).opacity = on;
 
       const halo = core.userData.halo as THREE.Mesh;
       halo.scale.setScalar(0.8 + pulse * 0.5);
-      (halo.material as THREE.MeshBasicMaterial).opacity = on * (0.3 + pulse * 0.35);
+      (halo.material as THREE.MeshBasicMaterial).opacity = on * (0.32 + pulse * 0.38);
 
-      // the ring expands and fades — a repeating radar ping
-      const ping = (time * 0.7 + phase[i]) % 1;
+      const ping = (time * 0.6 + phase[i]) % 1;
       const ring = rings[i];
-      ring.scale.setScalar((0.6 + ping * 2.6) * on);
-      (ring.material as THREE.MeshBasicMaterial).opacity = on * (1 - ping) * 0.6;
+      ring.scale.setScalar((0.6 + ping * 2.8) * on);
+      (ring.material as THREE.MeshBasicMaterial).opacity = on * (1 - ping) * 0.65;
+    }
+    // the reach fades in behind them
+    const nr = reach.length;
+    for (let i = 0; i < nr; i++) {
+      const on = Math.min(1, Math.max(0, reveal * 1.5 - 0.35 - (i / nr) * 0.4));
+      const flick = 0.7 + 0.3 * Math.sin(time * 1.6 + i * 1.7);
+      reach[i].scale.setScalar(on * flick);
+      (reach[i].material as THREE.MeshBasicMaterial).opacity = on * 0.85;
     }
   };
 
@@ -380,8 +413,9 @@ export function mapNodes(): MapNodes {
     group,
     update,
     dispose: () => {
-      coreGeo.dispose();
+      millGeo.dispose();
       ringGeo.dispose();
+      reachGeo.dispose();
       dot.dispose();
       group.traverse((o) => {
         const m = o as THREE.Mesh;

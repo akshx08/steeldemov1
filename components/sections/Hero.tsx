@@ -9,18 +9,17 @@ export default function Hero() {
   return (
     <div className="w-full max-w-[1380px]">
       <p
-        className="label fadeup mb-8 flex items-center gap-3 text-ash"
+        className="label label-lg fadeup mb-8 flex items-center gap-3 text-ash"
         style={{ animationDelay: "0.25s" }}
       >
         <span className="h-px w-9 bg-signal" />
         {HERO.eyebrow}
       </p>
 
-      {/* 10.5vw, not 13.5: "ADDRESSABLE." is twelve characters and clips off a
-          375px screen at anything larger. */}
-      <h1 className="display text-[10.5vw] leading-[0.94] text-white sm:text-[10vw] lg:text-[7.6vw]">
+      {/* the longest line ("CUT TO YOUR") sets the ceiling on a 375px screen */}
+      <h1 className="display display-hero text-[12vw] leading-[0.9] text-white sm:text-[10.5vw] lg:text-[8vw]">
         {HERO.head.map((line, i) => (
-          <span key={line} className="block overflow-hidden">
+          <span key={line} className="block overflow-hidden pb-[0.06em]">
             <span className="rise" style={{ animationDelay: `${0.35 + i * 0.09}s` }}>
               {line}
             </span>
@@ -30,7 +29,7 @@ export default function Hero() {
 
       <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-12">
         <p
-          className="fadeup max-w-[54ch] text-[15px] leading-relaxed text-ash md:col-span-7 lg:col-span-5"
+          className="lead fadeup max-w-[56ch] text-ash md:col-span-7 lg:col-span-5"
           style={{ animationDelay: "0.8s" }}
         >
           {HERO.sub}

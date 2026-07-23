@@ -29,10 +29,10 @@ export type Act = {
 
 export const ACTS: Act[] = [
   { id: "manifest", state: "LOADED", readout: "24.6 t", vh: 150 },
-  { id: "lift", state: "LIFT", readout: "1.62 m ⌀", vh: 165 },
-  { id: "scan", state: "SCAN", readout: "1 048 576 pts", vh: 175 },
-  { id: "burst", state: "SHATTER", readout: "no mass", vh: 150 },
-  { id: "india", state: "REACH", readout: "28 nodes", vh: 200 },
+  { id: "lift", state: "LIFT", readout: "1.62 m ⌀", vh: 150 },
+  { id: "uncoil", state: "UNROLL", readout: "312 m", vh: 200 },
+  { id: "slit", state: "SLIT", readout: "46 strips", vh: 150 },
+  { id: "india", state: "REACH", readout: "28 nodes", vh: 210 },
   { id: "dispatch", state: "DISPATCH", readout: "ready", vh: 150 },
 ];
 
@@ -51,13 +51,13 @@ export const ACT_WINDOWS: [number, number][] = (() => {
 export const actWindow = (id: string): [number, number] =>
   ACT_WINDOWS[ACTS.findIndex((a) => a.id === id)] ?? [0, 1];
 
-/** where in the film each morph target takes over — the whole choreography */
+/** where in the film each morph state takes over — the whole choreography */
 export const MORPH = {
-  /** points appear on the coil's surface */
-  scan: actWindow("scan"),
-  /** T0 → T1, the coil shatters */
-  shatter: actWindow("burst"),
-  /** T1 → T2, the shards reassemble into India */
+  /** coil unrolls into a flat sheet */
+  uncoil: actWindow("uncoil"),
+  /** the sheet is slit into strips */
+  slit: actWindow("slit"),
+  /** the strips lay down as India */
   india: actWindow("india"),
 };
 
@@ -86,27 +86,32 @@ export const LIFT = {
   ],
 };
 
-export const SCAN = {
-  eyebrow: "02 — Resolution",
-  head: "Then we take\nit apart.",
-  body: "Every surface the unit presents becomes a sample point. Geometry, mass distribution, dwell time, handling events, temperature on arrival. A million points per unit, and none of them are a guess.",
+export const UNCOIL = {
+  eyebrow: "02 — Unroll",
+  head: "It arrives\nwound.",
+  body: "A coil is a sheet with its length hidden — three hundred metres of steel rolled into something a crane can lift. Unwound, the whole unit lies flat, edge to edge, a single continuous surface.",
   points: [
-    { k: "Sample density", v: "1 048 576 pts / unit" },
-    { k: "Capture", v: "Gantry LiDAR + bed load cells" },
-    { k: "Latency", v: "< 400 ms to index" },
+    { k: "Unrolled length", v: "≈ 312 m" },
+    { k: "Gauge", v: "1.6 mm · IS 2062" },
+    { k: "Width", v: "1 250 mm" },
   ],
 };
 
-export const SHATTER = {
-  eyebrow: "03 — Release",
-  head: "Nothing about it\nwas ever\nthe steel.",
-  body: "Twenty-four tonnes come apart into the million points that described them. What is left is not cargo — it is the record of where this unit has to be.",
+export const SLIT = {
+  eyebrow: "03 — Slit",
+  head: "Then we\nslit it.",
+  body: "Circular knives split the sheet along its length into strips, each cut to width. One coil becomes many — every strip sized for the press it is going to.",
+  points: [
+    { k: "Strips", v: "46 across" },
+    { k: "Tolerance", v: "± 0.1 mm" },
+    { k: "Edge", v: "deburred, wound-ready" },
+  ],
 };
 
 export const REACH = {
   eyebrow: "04 — Reach",
-  head: "Every unit\nhas a\ndestination.",
-  body: "The object resolved to a point is now resolved to a place. The shattered cloud reassembles as the country the steel moves across — every node a delivery, the whole reach held in a single frame.",
+  head: "Every strip\nhas a\ndestination.",
+  body: "The slit steel lays down as the country it ships across — each band a latitude, each node a delivery. The same object that arrived as one coil leaves as a map of where it is going.",
   stat: { v: 28, k: "Destinations", note: "live on the map" },
   note: "The map is abstract; the reach is the point.",
 };
@@ -127,7 +132,8 @@ export const DISPATCH = {
 
 export const NAV = [
   { id: "lift", label: "Unit" },
-  { id: "scan", label: "Resolution" },
+  { id: "uncoil", label: "Unroll" },
+  { id: "slit", label: "Slit" },
   { id: "india", label: "Reach" },
   { id: "dispatch", label: "Dispatch" },
 ];

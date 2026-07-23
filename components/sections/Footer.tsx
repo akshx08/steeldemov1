@@ -38,14 +38,14 @@ export default function Footer() {
               <li className="spec text-ash">Three.js · procedural</li>
               <li className="spec text-ash">GSAP ScrollTrigger</li>
               <li className="spec text-ash">Lenis · lerp 0.09</li>
-              <li className="spec text-ash">62 000 points, 3 targets</li>
+              <li className="spec text-ash">Solid steel, 4 morph states</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-2 border-t border-line2 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="spec text-mute">{BRAND.descriptor}</p>
-          <p className="spec text-mute">24.6 t → 1 048 576 pts → India</p>
+          <p className="spec text-mute">coil → sheet → slit → India</p>
         </div>
       </div>
     </footer>

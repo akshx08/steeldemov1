@@ -8,9 +8,9 @@ import { scrollProgress, world } from "@/lib/store";
  * The state ladder and the unit readout — the spine of the interface.
  *
  * The readout does the argument of the whole page in one number: it starts as
- * a MASS, becomes a POINT COUNT the moment the unit is resolved, and ends as a
- * DESTINATION count once the cloud reassembles into the map. The same object,
- * measured in different units, as it stops being cargo and becomes a place.
+ * a MASS, becomes a LENGTH as the coil unrolls, a STRIP COUNT as it is slit,
+ * and ends as a DESTINATION count once the strips lay down as the map. The same
+ * object, measured in different units, as it stops being cargo and becomes a place.
  *
  * Written straight to the DOM inside one rAF loop — no React state per frame.
  */
@@ -23,11 +23,12 @@ function reading(idx: number, t: number): Reading {
     case "manifest":
     case "lift":
       return { value: "24.6", unit: "tonnes" };
-    case "scan":
-      // resolution climbing as the cloud lands on the surface
-      return { value: n(t * 1_048_576), unit: "points" };
-    case "burst":
-      return { value: "1 048 576", unit: "points, no mass" };
+    case "uncoil":
+      // length of steel unrolling
+      return { value: n(t * 312), unit: "m unrolled" };
+    case "slit":
+      // strips falling away under the knives
+      return { value: n(t * 46), unit: "strips cut" };
     case "india":
       // destinations lighting up as the map assembles
       return { value: n(t * 28), unit: "destinations" };

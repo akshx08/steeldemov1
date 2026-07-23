@@ -6,8 +6,8 @@ import Readout from "@/components/hud/Readout";
 
 import Hero from "@/components/sections/Hero";
 import Lift from "@/components/sections/Lift";
-import Scan from "@/components/sections/Scan";
-import Burst from "@/components/sections/Burst";
+import Uncoil from "@/components/sections/Uncoil";
+import Slit from "@/components/sections/Slit";
 import India from "@/components/sections/India";
 import Dispatch from "@/components/sections/Dispatch";
 import Footer from "@/components/sections/Footer";
@@ -43,12 +43,12 @@ export default function Page() {
           <Lift />
         </Act>
 
-        <Act id="scan" vh={vh("scan")}>
-          <Scan />
+        <Act id="uncoil" vh={vh("uncoil")}>
+          <Uncoil />
         </Act>
 
-        <Act id="burst" vh={vh("burst")}>
-          <Burst />
+        <Act id="slit" vh={vh("slit")}>
+          <Slit />
         </Act>
 
         <Act id="india" vh={vh("india")} place="left">

@@ -58,7 +58,7 @@ export default function OpengraphImage() {
             {BRAND.wordmark}
           </div>
           <div style={{ display: "flex", fontSize: 22, color: "#575E69", letterSpacing: 2 }}>
-            24.6 t → 1 048 576 pts → India
+            coil → sheet → slit → India
           </div>
         </div>
       </div>
